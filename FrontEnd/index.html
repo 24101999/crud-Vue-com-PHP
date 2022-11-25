@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/CSS/index.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100;200;300;400;500;600;700;800;900&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://unpkg.com/vue@3.2.41/dist/vue.global.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <!-- <script src="https://cdn.jsdelivr.net/npm/vue-resource@1.5.1"></script> -->
+    <script src="https://unpkg.com/vue-router@4"></script>
+    <title>Document</title>
+  </head>
+
+  <body>
+    <div id="app">
+      <header>
+        <nav>
+          <h1>USUARIOS</h1>
+        </nav>
+      </header>
+      <div class="line">
+        <button @click="cadastro()">CADASTRAR USUARIO</button>
+      </div>
+      <section class="modals">
+        <article class="modal" :class="active">
+          <button type="button" class="button-fechar" @click="closed()">
+            X
+          </button>
+          <div class="block-modal">
+            <h2>{{btmodal}}</h2>
+            <form method="post" action="http://localhost:1999/">
+              <input type="text" name="nome" placeholder="nome" />
+              <input type="text" name="endereco" placeholder="endereco" />
+              <input type="date" name="data" placeholder="data de nascimento" />
+              <button type="submit">{{btmodal}}</button>
+            </form>
+          </div>
+        </article>
+        <article class="modal-edit" :class="editar">
+          <button type="button" class="button-fechar" @click="closed()">
+            X
+          </button>
+          <div class="block-modal">
+            <h2>{{btmodal}}</h2>
+          </div>
+        </article>
+      </section>
+      <section class="todos-usuarios" id="todos">
+        <article class="usuarios" v-for="(el ,index) in dados">
+          <div class="dados" @click="">
+            <div class="conteudo">
+              <p>nome: <strong>{{el.nome}}</strong></p>
+              <p>endereço: <strong>{{el.endereco}}</strong></p>
+              <p>data de nascimento: <strong>{{el.data_nascimento}}</strong></p>
+            </div>
+            <div class="buttons-select">
+              <a :href="urledit+param+el.id">
+                <button type="button">Editar</button>
+              </a>
+              <a :href="url+param+el.id">
+                <button type="submit">Excluir</button>
+              </a>
+            </div>
+          </div>
+        </article>
+      </section>
+    </div>
+
+    <script type="module">
+      var allowDelete = function (req, res, next) {
+        res.append("Access-Control-Allow-Methods", "DELETE");
+        res.append("Access-Control-Allow-Origin", "*");
+        res.append("Access-Control-Allow-Methods", "GET, PUT, POST, DELETE");
+        res.append(
+          "Access-Control-Allow-Headers",
+          "Origin, X-Requested-With, Content-Type, Accept, Authorization"
+        );
+        next();
+      };
+      const { createApp } = Vue;
+      createApp({
+        mounted() {
+          // this.get();
+        },
+        data() {
+          return {
+            active: "",
+            editar: "/edit.html",
+            urledit: "http://localhost:1999/editar.php",
+            btmodal: "CADASTRAR",
+            url: "http://localhost:1999/delete.php",
+            param: "?id=",
+            dados: [],
+            id: "",
+            log: [],
+          };
+        },
+        methods: {
+          cadastro() {
+            this.active = "active";
+            this.btmodal = "CADASTRAR USUARIO";
+          },
+          edit() {
+            this.editar = "active";
+            this.btmodal = "EDITAR USUARIO";
+            this.url = "edit.php";
+          },
+          closed() {
+            this.active = "";
+            this.editar = "";
+          },
+          get() {
+            const th = this;
+            const url = "http://localhost:1999/";
+            axios.get(url).then(function (r) {
+              th.dados = r.data;
+              th.id = r.data.id;
+              th.log = r.data;
+
+              let ids = th.log[0];
+
+              let arr = Array.from(ids);
+
+              let per = arr.forEach((el, i, array) => {
+                console.log(array[i].id);
+              });
+            });
+          },
+        },
+        mounted() {
+          // setInterval(this.get, 1000);
+          this.get();
+        },
+      }).mount("#app");
+    </script>
+  </body>
+</html>
